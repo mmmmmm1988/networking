@@ -6,6 +6,7 @@
 #include <sys/select.h>
 #include <sys/param.h>
 #include <errno.h>
+#include <bits/socket.h>
 
 #include "commons.h"
 
@@ -20,7 +21,7 @@ int init_unicast_socket(int bind_port) {
     bind_addr.sin_port=htons(bind_port);
     
     // bindowanie
-    if(!bind(sockfd,&bind_addr,sizeof(struct sockaddr_in))) {
+    if(bind(sockfd,(struct sockaddr*)&bind_addr,sizeof(struct sockaddr_in))) {
         perror("bind(unicast)");
         exit(errno);
     }
@@ -39,7 +40,7 @@ int init_broadcast_socket(int bind_port) {
     bind_addr.sin_port=htons(bind_port);
     
     // bindowanie
-    if(!bind(sockfd,&bind_addr,sizeof(struct sockaddr_in))) {
+    if(bind(sockfd,(struct sockaddr*)&bind_addr,sizeof(struct sockaddr_in))) {
         perror("bind(broadcast)");
         exit(errno);
     }
@@ -62,7 +63,7 @@ int init_multicast_socket(int bind_port) {
     bind_addr.sin_port=htons(bind_port);
     
     // bindowanie
-    if(!bind(sockfd,&bind_addr,sizeof(struct sockaddr_in))) {
+    if(bind(sockfd,(struct sockaddr*)&bind_addr,sizeof(struct sockaddr_in))) {
         perror("bind(multicast)");
         exit(errno);
     }
