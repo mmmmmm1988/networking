@@ -51,6 +51,10 @@ int init_multicast_socket(int bind_port) {
     // tworze socket
     int sockfd=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);
     
+    // struktura definiująca grupę multikastową
+    struct sockaddr_in mcast_addr;
+    
+    
     // struktura definiujaca adres do bindowania
     struct sockaddr_in bind_addr;
     bind_addr.sin_family=AF_INET;
