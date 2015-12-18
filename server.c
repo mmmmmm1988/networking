@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include <stdint.h>
-#include <sys/socket.h>
+
 #include <netinet/in.h>
 #include <stdio.h>
-#include <sys/select.h>
-#include <sys/param.h>
+
 #include <errno.h>
-#include <bits/socket.h>
+#include <sys/socket.h>
 
 #include "commons.h"
 
