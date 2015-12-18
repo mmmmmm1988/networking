@@ -1,11 +1,11 @@
 
-all: server client
+all: server.out client.out
 	
-client: client.c
-	gcc client.c -o client
+client.out: client.c
+	gcc client.c -o client.out
 
-server: server.c
-	gcc server.c -o server
+server.out: server.c
+	gcc server.c -o server.out
 	
 clean:
-	rm client server
+	rm client.out server.out

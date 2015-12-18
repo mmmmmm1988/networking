@@ -93,7 +93,25 @@ int main(void) {
     
     // select()
     while(select(maxfd+1, &read_fds, NULL, NULL, NULL)) {
+        if(FD_ISSET(ucast_sockfd,&read_fds)) {
+            fprintf(stdout,"Dane przyszły na UNICAST\n");
+            
+            
+        } else if(FD_ISSET(bcast_sockfd,&read_fds)) {
+            fprintf(stdout,"Dane przyszły na BROADCAST\n");
+            
+        } else if(FD_ISSET(mcast_sockfd,&read_fds)) {
+            fprintf(stdout,"Dane przyszły na MULTICAST\n");
+            
+        } else {
+            fprintf(stderr,"coś niespodziewanego się stało...\n");
+        }
         
+        // ponowne wypełnienie zbioru deskryptorów
+        FD_ZERO(&read_fds);
+        FD_SET(ucast_sockfd,&read_fds);
+        FD_SET(bcast_sockfd,&read_fds);
+        FD_SET(mcast_sockfd,&read_fds);
     }
     
     return EXIT_SUCCESS;
