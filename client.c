@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <memory.h>
+#include <arpa/inet.h>
 
 #include "commons.h"
 
@@ -27,6 +28,13 @@ int init_socket(int bind_port) {
 
 int main(void) {
     
+    int sockfd=init_socket(0);
+    
+    struct sockaddr_in target_addr;
+    target_addr.sin_family=AF_INET;
+    target_addr.sin_port=htons(31337);  // port docelowy
+    target_addr.sin_addr.s_addr=inet_addr("127.0.0.1"); // docelowy host
+    
     fd_set read_fds;
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO,&read_fds);
@@ -38,10 +46,16 @@ int main(void) {
         memset(buffer,0,MAX_BUFF_SIZE);
         
         if(FD_ISSET(STDIN_FILENO,&read_fds)) {
-            read(STDIN_FILENO,buffer,MAX_BUFF_SIZE);
+            int bytes_read=read(STDIN_FILENO,buffer,MAX_BUFF_SIZE); // czytam
+            int bytes_sent=sendto(sockfd,buffer,bytes_read,0,
+                    (struct sockaddr*)&target_addr,sizeof(struct sockaddr)); // wysylam
             
+            if(bytes_read==bytes_sent) {    // sprawdzam
+                fprintf(stdout,"> %s", buffer);
+            } else {    // błąd
+                fprintf(stderr,"Coś poszło nie tak read=%d, sent=%d\n",bytes_read,bytes_sent);
+            }
             
-            fprintf(stdout,"> %s", buffer);
         } else {
             fprintf(stderr,"Coś nieprzewidzianego sie dzieje\n");
         }
