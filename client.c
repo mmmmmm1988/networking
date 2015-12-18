@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <memory.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
 
 #include "commons.h"
@@ -22,7 +23,14 @@ int init_socket(int bind_port) {
             exit(errno);
         }
     }
-            
+     
+    bool enable_broadcast=true;
+    if(enable_broadcast) {
+        if(setsockopt(sockfd,SOL_SOCKET,SO_BROADCAST,(int*)&enable_broadcast,sizeof(int))) {
+            perror("setsockopt(SO_BROADCAST)");
+        }
+    }
+    
     return sockfd;
 }
 
@@ -32,8 +40,10 @@ int main(void) {
     
     struct sockaddr_in target_addr;
     target_addr.sin_family=AF_INET;
-    target_addr.sin_port=htons(31337);  // port docelowy
-    target_addr.sin_addr.s_addr=inet_addr("127.0.0.1"); // docelowy host
+    target_addr.sin_port=htons(PORT);  // port docelowy
+    
+    target_addr.sin_addr.s_addr=inet_addr(BROADCAST_IP); // docelowy host bcast
+//    target_addr.sin_addr.s_addr=inet_addr(UNICAST_IP); // docelowy host ucast
     
     fd_set read_fds;
     FD_ZERO(&read_fds);
@@ -46,14 +56,18 @@ int main(void) {
         memset(buffer,0,MAX_BUFF_SIZE);
         
         if(FD_ISSET(STDIN_FILENO,&read_fds)) {
-            int bytes_read=read(STDIN_FILENO,buffer,MAX_BUFF_SIZE); // czytam
+            // czytam z konsoli
+            int bytes_read=read(STDIN_FILENO,buffer,MAX_BUFF_SIZE); 
+            // wysylam w sieć
             int bytes_sent=sendto(sockfd,buffer,bytes_read,0,
-                    (struct sockaddr*)&target_addr,sizeof(struct sockaddr)); // wysylam
+                    (struct sockaddr*)&target_addr,sizeof(struct sockaddr)); 
             
-            if(bytes_read==bytes_sent) {    // sprawdzam
+            // sprawdzam 
+            if(bytes_read==bytes_sent) { // ok
                 fprintf(stdout,"> %s", buffer);
-            } else {    // błąd
+            } else { // błąd
                 fprintf(stderr,"Coś poszło nie tak read=%d, sent=%d\n",bytes_read,bytes_sent);
+                perror("sendto()");
             }
             
         } else {
